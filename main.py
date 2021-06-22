@@ -4,10 +4,9 @@ import datetime;
 from discord.utils import get
 from discord.ext import tasks;
 from googleapiclient.discovery import build;
-from boto.s3.connection import S3Connection;
 
-BOT_TOKEN = S3Connection(os.environ['BOT_TOKEN'])
-GOOGLE_API_KEY = S3Connection(os.environ['GOOGLE_API_KEY'])
+BOT_TOKEN = os.environ['BOT_TOKEN']
+GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
 
 SERVER_ID = 181053990329384960
 ROLES_ID = 856152205597868052
