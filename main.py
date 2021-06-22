@@ -4,9 +4,10 @@ import datetime;
 from discord.utils import get
 from discord.ext import tasks;
 from googleapiclient.discovery import build;
+from boto.s3.connection import S3Connection;
 
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+BOT_TOKEN = S3Connection(os.environ['BOT_TOKEN'])
+GOOGLE_API_KEY = S3Connection(os.environ['GOOGLE_API_KEY'])
 
 SERVER_ID = 181053990329384960
 ROLES_ID = 856152205597868052
@@ -34,6 +35,16 @@ class Colors:
     TEXT = "\033[1;34;40m"
     DESC = "\033[1;37;40m"
     GREEN = "\033[1;32;40m"
+
+def check_before_run():
+
+    if BOT_TOKEN == "":
+        print('Missing BOT Token Value')
+        quit()
+        
+    if GOOGLE_API_KEY == "":
+        print('Missing Google API Key')
+        quit()
 
 async def post_message(message_id):
 
@@ -196,4 +207,5 @@ async def edit_test(message):
     await channel.edit(name = channel_name)
     subscriber_count = video_count
 
+check_before_run()
 bot.run(BOT_TOKEN)
