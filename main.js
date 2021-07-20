@@ -1,5 +1,6 @@
 "use strict";
 
+require('dotenv').config()
 const Discord = require("discord.js");
 const Configuration = require("./configuration.js");
 const { google } = require("googleapis");
@@ -76,7 +77,6 @@ async function PostYoutubeStats()
     const message = await channel.send(messageToSend);
 
     await config.modify("last_message_id", "youtube_stats", message.id.toString());
-    console.log("PostYoutubeStats DONE!");
 }
 
 async function UpdateYoutubeStats()
