@@ -1,1 +1,0 @@
-# SkyEncripttion-Discord-BOT

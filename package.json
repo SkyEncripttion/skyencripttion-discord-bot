@@ -1,0 +1,17 @@
+{
+  "name": "skyencripttion-discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^10.0.0",
+    "google-auth-library": "^7.3.0",
+    "googleapis": "^82.0.0"
+  }
+}
