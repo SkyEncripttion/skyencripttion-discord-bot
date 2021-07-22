@@ -138,6 +138,17 @@ async function onMessage(message)
 {
     const args = message.content.split(/ +/);
 
+    if (!message.author.bot && message.channel.id == config.fun.channel_id)
+    {
+        if (
+            message.content === "https://tenor.com/view/homer-bye-good-bye-simpsons-gif-10153624" ||
+            message.content === "https://tenor.com/view/disappear-peace-out-gone-bye-gotta-go-gif-7342741"
+        )
+        {
+            message.channel.send(":wave:");
+        }
+    }
+
     if (!message.mentions.has(client.user.id) || message.author.bot)
     {
         return;

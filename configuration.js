@@ -14,6 +14,7 @@ class Configuration
         // Assign configuration to each variable
         this.bot = this.config.bot;
         this.youtube = this.config.youtube;
+        this.fun = this.config.fun;
         this.auto_roles = this.config.auto_roles;
         this.youtube_stats = this.config.youtube_stats;
         this.last_message_id = this.config.last_message_id;
@@ -42,6 +43,7 @@ class Configuration
         // Assign configuration to each variable
         this.bot = this.config.bot;
         this.youtube = this.config.youtube;
+        this.fun = this.config.fun;
         this.auto_roles = this.config.auto_roles;
         this.youtube_stats = this.config.youtube_stats;
         this.last_message_id = this.config.last_message_id;
