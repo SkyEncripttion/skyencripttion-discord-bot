@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { IAutoRoles, IBot, IConfiguration, ILastMessageID, IYoutube, IYoutubeStats } from "./interface/Configuration";
+import { IAutoRoles, IBot, IConfiguration, ILastMessageID, IYoutube, IYoutubeStats } from "./interface/configuration";
 
 export default class Configuration
 {
