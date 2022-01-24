@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node build/main.js",
     "dev": "ts-node main.ts",
-    "build": "tsc --project ./"
+    "build": "tsc --project ."
   },
   "author": "",
   "license": "ISC",
