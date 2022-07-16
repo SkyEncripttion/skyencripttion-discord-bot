@@ -1,16 +1,16 @@
 {
     "info": {
         "name": "SkyEncripttion",
-        "serverId": "850770099115524136"
+        "serverId": "181053990329384960"
     },
     "youtube": {
         "id": "UCoEztSI7PDAwtGsUQ8Dq7Pg",
         "logo": "https://i.imgur.com/XxAmEyj.jpeg"
     },
     "autoRoles": {
-        "rolesId": "855698354074943518",
+        "rolesId": "856152205597868052",
         "message": {
-            "channelId": "850770099115524139",
+            "channelId": "856161809051287553",
             "color": "#2f3136",
             "title": "SkyEncripttion YouTube Notification Squad",
             "description": "Dengan menjadi notification squad kamu akan mendapatkan notifikasi mengenai video baru, jadwal dan juga livestream yang sedang berjalan.\n\nSubscribe dengan menekan tombol dibawah ini."
@@ -18,13 +18,13 @@
     },
     "youtubeStats": {
         "message": {
-            "channelId": "850778804968488992",
+            "channelId": "856141405423403028",
             "color": "#2f3136",
             "title": "SkyEncripttion - S1 Project Revivae"
         }
     },
     "lastMessageId": {
-        "autoRoles": "997765406041325649",
-        "youtubeStats": "997765660413284383"
+        "autoRoles": "935087843691339777",
+        "youtubeStats": "935087852629418004"
     }
 }
