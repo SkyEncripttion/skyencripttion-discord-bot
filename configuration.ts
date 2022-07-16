@@ -1,59 +1,61 @@
 import * as fs from "fs";
-import { IAutoRoles, IBot, IConfiguration, ILastMessageID, IYoutube, IYoutubeStats } from "./interface/configuration";
+import { IConfiguration } from "./interface/configuration";
+
+const CONFIG_NAME = "config.json";
 
 export default class Configuration
 {
-    name: string;
-    file: Buffer;
-    config: IConfiguration;
-    bot: IBot;
-    youtube: IYoutube;
-    auto_roles: IAutoRoles;
-    youtube_stats: IYoutubeStats;
-    last_message_id: ILastMessageID;
+    private config: IConfiguration;
 
     constructor()
     {
-        // File name to look for
-        this.name = "config.json";
+        try
+        {
+            const file = fs.readFileSync(CONFIG_NAME);
+            this.config = JSON.parse(file.toString());
+        }
+        catch (err)
+        {
+            throw console.error(`Error whilst reading config file. ERROR: ${ err }`);
+        }
+    }
 
-        // Load configuration from file
-        this.file = fs.readFileSync(this.name);
-        this.config = JSON.parse(this.file.toString());
+    get info() {
+        return this.config.info;
+    }
 
-        // Assign configuration to each variable
-        this.bot = this.config.bot;
-        this.youtube = this.config.youtube;
-        this.auto_roles = this.config.auto_roles;
-        this.youtube_stats = this.config.youtube_stats;
-        this.last_message_id = this.config.last_message_id;
+    get youtube() {
+        return this.config.youtube;
+    }
+
+    get autoRoles() {
+        return this.config.autoRoles;
+    }
+
+    get youtubeStats() {
+        return this.config.youtubeStats;
+    }
+
+    get lastMessageId() {
+        return this.config.lastMessageId;
     }
 
     async modify(type: keyof IConfiguration, property: string, newValue: string)
     {
-        //Check if value exists in the current config
         if (!this.config.hasOwnProperty(type) && !this.config[ type ].hasOwnProperty(property))
         {
             throw console.error(`No property defined with the name "${ property }"`);
         }
 
-        const newConfig = { ...this.config, [ type ]: { ...this.config[ type ], [ property ]: newValue } };
-        fs.writeFileSync(this.name, JSON.stringify(newConfig, null, 4));
+        this.config = { ...this.config, [ type ]: { ...this.config[ type ], [ property ]: newValue } };
 
-        this.reload();
-    }
-
-    reload()
-    {
-        // Load configuration from file
-        this.file = fs.readFileSync(this.name);
-        this.config = JSON.parse(this.file.toString());
-
-        // Assign configuration to each variable
-        this.bot = this.config.bot;
-        this.youtube = this.config.youtube;
-        this.auto_roles = this.config.auto_roles;
-        this.youtube_stats = this.config.youtube_stats;
-        this.last_message_id = this.config.last_message_id;
+        try
+        {
+            fs.writeFileSync(CONFIG_NAME, JSON.stringify(this.config, null, 4));
+        }
+        catch (err)
+        {
+            throw console.error(`Error whilst writing config file. ERROR: ${ err }`);
+        }
     }
 }

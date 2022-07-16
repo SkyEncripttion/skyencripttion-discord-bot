@@ -1,28 +1,30 @@
 {
-    "bot": {
+    "info": {
         "name": "SkyEncripttion",
-        "token": "",
-        "server_id": "181053990329384960"
+        "serverId": "850770099115524136"
     },
     "youtube": {
-        "api_key": "",
-        "channel_id": "UCoEztSI7PDAwtGsUQ8Dq7Pg",
-        "logo_url": "https://i.imgur.com/XxAmEyj.jpeg"
+        "id": "UCoEztSI7PDAwtGsUQ8Dq7Pg",
+        "logo": "https://i.imgur.com/XxAmEyj.jpeg"
     },
-    "auto_roles": {
-        "channel_id": "856161809051287553",
-        "roles_id": "856152205597868052",
-        "color": "#2f3136",
-        "title": "SkyEncripttion YouTube Notification Squad",
-        "description": "Dengan menjadi notification squad kamu akan mendapatkan notifikasi mengenai video baru, jadwal dan juga livestream yang sedang berjalan.\n\nSubscribe dengan menekan tombol dibawah ini."
+    "autoRoles": {
+        "rolesId": "855698354074943518",
+        "message": {
+            "channelId": "850770099115524139",
+            "color": "#2f3136",
+            "title": "SkyEncripttion YouTube Notification Squad",
+            "description": "Dengan menjadi notification squad kamu akan mendapatkan notifikasi mengenai video baru, jadwal dan juga livestream yang sedang berjalan.\n\nSubscribe dengan menekan tombol dibawah ini."
+        }
     },
-    "youtube_stats": {
-        "channel_id": "856141405423403028",
-        "color": "#2f3136",
-        "title": "SkyEncripttion - S1 Project Revivae"
+    "youtubeStats": {
+        "message": {
+            "channelId": "856141405423403028",
+            "color": "#2f3136",
+            "title": "SkyEncripttion - S1 Project Revivae"
+        }
     },
-    "last_message_id": {
-        "auto_roles": "935087843691339777",
-        "youtube_stats": "935087852629418004"
+    "lastMessageId": {
+        "autoRoles": "",
+        "youtubeStats": ""
     }
 }

@@ -1,14 +1,15 @@
 import "dotenv/config";
+import _ from "lodash";
 import Configuration from "./configuration";
 import { google, youtube_v3 } from "googleapis";
-import { Client as ClientJS, Intents, Interaction, MessageActionRow, MessageButton, MessageEmbed, MessageOptions, TextChannel } from "discord.js";
-
-// Get current configuration
-const Config = new Configuration();
+import { Client as ClientJS, Intents, Interaction, MessageActionRow, MessageButton, MessageEditOptions, MessageEmbed, MessageOptions, TextChannel } from "discord.js";
 
 // Get environment variables
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+
+// Get configuration from file
+const config = new Configuration();
 
 const BotIntents = new Intents();
 BotIntents.add(
@@ -20,55 +21,59 @@ BotIntents.add(
 
 const Client = new ClientJS({ intents: [ BotIntents ] });
 
-let taskUpdateYoutubeStats = false;
-
 Client.on("ready", async () => await onStartup());
 Client.on("interactionCreate", async (interaction) => await HandleMessageActions(interaction));
 
 async function onStartup()
 {
-    
-    console.log(`[Status] ${ Config.bot.name } BOT is now running`);
+    console.log(`[Status] ${ config.info.name } BOT is now running`);
 
     // Check if auto roles message already sent
-    if (!Config.last_message_id.auto_roles) {
+    if (!config.lastMessageId.autoRoles) {
         // Post Message
         await PostAutoRolesMessage();
     }
     else {
         // Cache the current posted message already
-        const channel = Client.channels.cache.get(Config.auto_roles.channel_id) as TextChannel;
+        const channel = Client.channels.cache.get(config.autoRoles.message.channelId) as TextChannel;
 
         // Fetch last message_id to cache
-        channel.messages.fetch(Config.last_message_id.auto_roles);
+        channel.messages.fetch(config.lastMessageId.autoRoles);
     }
 
     // Check if youtube stats already sent
-    if (!Config.last_message_id.youtube_stats) {
+    if (!config.lastMessageId.youtubeStats) {
         // Post Message
         await PostYoutubeStats();
     }
 
-    taskUpdateYoutubeStats = true;
-    UpdateYoutubeStats();
+    setInterval(async () => UpdateYoutubeStats(), 60000);
 }
 
 async function PostAutoRolesMessage()
 {
     // Load channel id, server id from config
-    const channel = Client.channels.cache.get(Config.auto_roles.channel_id) as TextChannel;
-    const guild = Client.guilds.cache.get(Config.bot.server_id);
+    const channel = Client.channels.cache.get(config.autoRoles.message.channelId) as TextChannel;
+    const guild = Client.guilds.cache.get(config.info.serverId);
 
     if (!guild)
     {
-        console.log(`[Error] ${ Config.bot.name } BOT is not in the server`);
+        console.error(`[Error] ${ config.info.name } BOT is not in the server!`);
+        return;
+    }
+
+    const { title, description, color } = config.autoRoles.message;
+
+    if (_.isUndefined(title) || _.isUndefined(description) || _.isUndefined(color))
+    {
+        console.error("[Error] Invalid auto roles configuration!");
         return;
     }
 
     const embeds = new MessageEmbed()
-        .setTitle(Config.auto_roles.title)
-        .setDescription(Config.auto_roles.description)
-        .setColor(Config.auto_roles.color);
+        .setTitle(title)
+        .setDescription(description)
+        .setColor(color);
 
     const subscribeAction = new MessageButton()
         .setCustomId("subscribe")
@@ -97,26 +102,28 @@ async function PostAutoRolesMessage()
     const message = await channel.send(messageToSend);
 
     // Modify message id in config
-    Config.modify("last_message_id", "auto_roles", message.id.toString());
+    config.modify("lastMessageId", "autoRoles", message.id.toString());
 }
 
 async function HandleMessageActions(interaction: Interaction)
 {
     if (!interaction.isButton()) return;
 
-    const guild = await Client.guilds.fetch(Config.bot.server_id);
+    const serverId = config.info.serverId;
+    const rolesId = config.autoRoles.rolesId;
+    const guild = await Client.guilds.fetch(serverId);
 
     if (!guild)
     {
-        console.log("[Error] Guild not found");
+        console.log(`[Error] Guild with server id ${ serverId } not found!`);
         return;
     }
 
-    const roles = await guild.roles.fetch(Config.auto_roles.roles_id);
+    const roles = await guild.roles.fetch(rolesId);
 
     if (!roles)
     {
-        console.log("[Error] Roles not found");
+        console.log(`[Error] Roles with id ${ rolesId } not found!`);
         return;
     }
 
@@ -125,10 +132,10 @@ async function HandleMessageActions(interaction: Interaction)
     switch (interaction.customId)
     {
         case "subscribe": 
-            console.log(`[Info] User:${user.id} pressed subscribe button`);
+            console.info(`[Info] User:${user.id} pressed subscribe button`);
             
             // Check if user already subscribed
-            if (user.roles.cache.some(role => role.id === Config.auto_roles.roles_id))
+            if (user.roles.cache.some(role => role.id === config.autoRoles.rolesId))
             {
                 await interaction.reply({ content: "Kamu sudah berada di Notification Squad!", ephemeral: true });
                 return;
@@ -144,7 +151,7 @@ async function HandleMessageActions(interaction: Interaction)
             console.log(`[Info] User:${user.id} pressed unsubscribe button`);
 
             // Check if user already unsubscribed
-            if (!user.roles.cache.some(role => role.id === Config.auto_roles.roles_id))
+            if (!user.roles.cache.some(role => role.id === rolesId))
             {
                 await interaction.reply({ content: "Kamu sudah tidak berada di Notification Squad!", ephemeral: true });
                 return;
@@ -169,7 +176,7 @@ async function GetYoutubeChannelStatistics() {
 
     const SkyEncripttionChannel: youtube_v3.Params$Resource$Channels$List = {
         part: ["statistics"],
-        id: [ Config.youtube.channel_id ]
+        id: [ config.youtube.id ]
     }
 
     const response = await youtube.channels.list(SkyEncripttionChannel);
@@ -186,17 +193,25 @@ async function GetYoutubeChannelStatistics() {
 async function PostYoutubeStats()
 {
     // Load channel id, server id from config
-    const channel = Client.channels.cache.get(Config.youtube_stats.channel_id) as TextChannel;
+    const channel = Client.channels.cache.get(config.youtubeStats.message.channelId) as TextChannel;
 
     if (!channel)
     {
-        console.log("[Error] Channel not found");
+        console.error("[Error] Channel not found");
+        return;
+    }
+    
+    const { color } = config.youtubeStats.message;
+
+    if (_.isUndefined(color))
+    {
+        console.error("[Error] Invalid youtube stats configuration!");
         return;
     }
 
     const embeds = new MessageEmbed()
         .setTitle("Fetching info...")
-        .setColor(Config.youtube_stats.color);
+        .setColor(color);
 
     const messageToSend: MessageOptions = {
         embeds: [ embeds ]
@@ -204,58 +219,61 @@ async function PostYoutubeStats()
 
     const message = await channel.send(messageToSend);
 
-    await Config.modify("last_message_id", "youtube_stats", message.id.toString());
+    await config.modify("lastMessageId", "youtubeStats", message.id.toString());
 }
 
 async function UpdateYoutubeStats() {
-    while (taskUpdateYoutubeStats) {
+    const data = await GetYoutubeChannelStatistics();
 
-        const data = await GetYoutubeChannelStatistics();
-
-        if (!data) {
-            console.log("[Error] Could not fetch data");
-            return;
-        }
-
-        const { subscriber_count, view_count, video_count } = data;
-
-        // Load channel id, message id from config
-        const channel = Client.channels.cache.get(Config.youtube_stats.channel_id) as TextChannel;
-
-        if (!channel)
-        {
-            console.log("[Error] Channel not found");
-            return;
-        }
-
-        const message = await channel.messages.fetch(Config.last_message_id.youtube_stats);
-
-        const thumbnail = Config.youtube.logo_url;
-
-        const newChannelName = `${ subscriber_count }-subscriber`;
-
-        const embeds = new MessageEmbed()
-            .setTitle(Config.youtube_stats.title)
-            // WARNING: This description has invisible character in the start and end (Alt +0173)
-            .setDescription("­­\n**" + subscriber_count + "** Subscriber\n" + "**" + view_count + "** Total Views\n" + "**" + video_count + "** Video Uploaded\n­­")
-            .setColor(Config.youtube_stats.color)
-            .setThumbnail(thumbnail)
-            .setTimestamp(new Date().getTime())
-            .setFooter({
-                text: "Last updated"
-            });
-
-        const messageToSend: MessageOptions = {
-            embeds: [ embeds ]
-        }
-
-        await message.edit(messageToSend);
-        await channel.edit({ name: newChannelName });
-
-        Config.modify("last_message_id", "youtube_stats", message.id.toString());
-
-        await new Promise(thisFunction => setTimeout(thisFunction, 60000))
+    if (!data) {
+        console.log("[Error] Could not fetch data");
+        return;
     }
+
+    const { subscriber_count, view_count, video_count } = data;
+
+    // Load channel id, message id from config
+    const channel = Client.channels.cache.get(config.youtubeStats.message.channelId) as TextChannel;
+
+    if (!channel)
+    {
+        console.log("[Error] Channel not found");
+        return;
+    }
+
+    const message = await channel.messages.fetch(config.lastMessageId.youtubeStats);
+
+    const thumbnail = config.youtube.logo;
+
+    const newChannelName = `${ subscriber_count }-subscriber`;
+
+    const { title, color } = config.youtubeStats.message;
+
+    if (_.isUndefined(title) || _.isUndefined(color))
+    {
+        console.error("[Error] Invalid youtube stats configuration!");
+        return;
+    }
+
+    const embeds = new MessageEmbed()
+        .setTitle(title)
+        // WARNING: This description has invisible character in the start and end (Alt +0173)
+        .setDescription("­­\n**" + subscriber_count + "** Subscriber\n" + "**" + view_count + "** Total Views\n" + "**" + video_count + "** Video Uploaded\n­­")
+        .setColor(color)
+        .setThumbnail(thumbnail)
+        .setTimestamp(new Date().getTime())
+        .setFooter({
+            text: "Last updated"
+        });
+
+    const messageToSend: MessageEditOptions = {
+        embeds: [ embeds ]
+    }
+
+    await message.edit(messageToSend);
+    await channel.edit({ name: newChannelName });
+
+    config.modify("lastMessageId", "youtubeStats", message.id.toString());
 }
 
 Client.login(BOT_TOKEN)
