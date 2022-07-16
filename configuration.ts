@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { IConfiguration } from "./interface/configuration";
+import { IConfiguration } from "./interfaces/configuration";
 
 const CONFIG_NAME = "config.json";
 
@@ -59,3 +59,5 @@ export default class Configuration
         }
     }
 }
+
+export const config = new Configuration();
