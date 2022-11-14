@@ -1,4 +1,4 @@
-import { Client, Interaction, MessageActionRow, MessageButton, MessageEmbed, MessageOptions, TextChannel } from "discord.js";
+import { Client, Interaction, ActionRowBuilder, ButtonBuilder, EmbedBuilder, TextChannel, ButtonStyle, MessageCreateOptions } from "discord.js";
 import { config } from "../configuration";
 import _ from "lodash";
 
@@ -7,9 +7,10 @@ export default async function AutoRoles(client: Client)
     client.on("interactionCreate", async (interaction) => await HandleMessageActions(client, interaction));
 
     // Load channel id, server id from config
-    const channel = client.channels.cache.get(config.autoRoles.message.channelId) as TextChannel;
+    const channel = await client.channels.fetch(config.autoRoles.message.channelId) as TextChannel;
+    // const channel = client.channels.cache.get(config.autoRoles.message.channelId) as TextChannel;
 
-    if (_.isUndefined(channel))
+    if (_.isNull(channel))
     {
         console.error("[Error] Invalid auto roles configuration!");
         return;
@@ -40,25 +41,25 @@ async function Post(channel: TextChannel)
         return;
     }
 
-    const embeds = new MessageEmbed()
+    const embeds = new EmbedBuilder()
         .setTitle(title)
         .setDescription(description)
         .setColor(color);
 
-    const subscribeAction = new MessageButton()
+    const subscribeAction = new ButtonBuilder()
         .setCustomId("subscribe")
         .setLabel("Subscribe")
-        .setStyle("SUCCESS");
+        .setStyle(ButtonStyle.Success);
 
-    const unsubscribeAction = new MessageButton()
+    const unsubscribeAction = new ButtonBuilder()
         .setCustomId("unsubscribe")
         .setLabel("Unsubscribe")
-        .setStyle("DANGER");
+        .setStyle(ButtonStyle.Danger);
 
-    const messageActions = new MessageActionRow()
+    const messageActions = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(subscribeAction, unsubscribeAction);
 
-    const messageToSend: MessageOptions = {
+    const messageToSend: MessageCreateOptions = {
         embeds: [ embeds ],
         components: [ messageActions ]
     }

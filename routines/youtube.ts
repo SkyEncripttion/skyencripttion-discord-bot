@@ -1,4 +1,4 @@
-import { Client, MessageEditOptions, MessageEmbed, MessageOptions, TextChannel } from "discord.js";
+import { Client, EmbedBuilder, MessageCreateOptions, MessageEditOptions, TextChannel } from "discord.js";
 import { google, youtube_v3 } from "googleapis";
 import { config } from "../configuration";
 import _ from "lodash";
@@ -16,9 +16,10 @@ export default async function YoutubeStats(client: Client) {
     const { subscriber_count, view_count, video_count } = data;
 
     // Load channel id, message id from config
-    const channel = client.channels.cache.get(config.youtubeStats.message.channelId) as TextChannel;
+    const channel = await client.channels.fetch(config.youtubeStats.message.channelId) as TextChannel;
+    // const channel = client.channels.cache.get(config.youtubeStats.message.channelId) as TextChannel;
 
-    if (_.isUndefined(channel))
+    if (_.isNull(channel))
     {
         console.error("[Error] Invalid youtube stats configuration!");
         return;
@@ -51,7 +52,7 @@ export default async function YoutubeStats(client: Client) {
         return;
     }
 
-    const embeds = new MessageEmbed()
+    const embeds = new EmbedBuilder()
         .setTitle(title)
         // WARNING: This description has invisible character in the start and end (Alt +0173)
         .setDescription("­­\n**" + subscriber_count + "** Subscriber\n" + "**" + view_count + "** Total Views\n" + "**" + video_count + "** Video Uploaded\n­­")
@@ -82,11 +83,11 @@ async function Post(channel: TextChannel)
         return;
     }
 
-    const embeds = new MessageEmbed()
+    const embeds = new EmbedBuilder()
         .setTitle("Fetching info...")
         .setColor(color);
 
-    const messageToSend: MessageOptions = {
+    const messageToSend: MessageCreateOptions = {
         embeds: [ embeds ]
     }
 
